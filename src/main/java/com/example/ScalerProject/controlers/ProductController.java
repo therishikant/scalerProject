@@ -21,6 +21,6 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable long id){
         Product product =  fakeStoreProductService.getProductById(id);
         ProductResponseDto productResponseDto = ProductResponseDto.from(product);
-        return new ResponseEntity<>(productResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(productResponseDto, HttpStatus.ACCEPTED);
     }
 }
