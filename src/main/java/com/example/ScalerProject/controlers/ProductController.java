@@ -7,6 +7,10 @@ import com.example.ScalerProject.dtos.ProductResponseDto;
 import com.example.ScalerProject.exceptions.ProductNotFoundException;
 import com.example.ScalerProject.models.Product;
 import com.example.ScalerProject.services.FakeStoreProductService;
+import com.example.ScalerProject.services.ProductDBService;
+import com.example.ScalerProject.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +20,23 @@ import java.util.List;
 
 @RestController
 public class ProductController {
-    FakeStoreProductService fakeStoreProductService;
+    ProductService productService;
+    final String serviceName = "productDBService";
 
-    ProductController(FakeStoreProductService fakeStoreProductService) {
-        this.fakeStoreProductService = fakeStoreProductService;
+    ProductController(@Qualifier(serviceName) ProductService productService) {
+        this.productService = productService;
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable long id) throws ProductNotFoundException {
-        Product product =  fakeStoreProductService.getProductById(id);
+        Product product =  productService.getProductById(id);
         ProductResponseDto productResponseDto = ProductResponseDto.from(product);
         return new ResponseEntity<>(productResponseDto, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts(){
-        List<Product> product = fakeStoreProductService.getProducts();
+        List<Product> product = productService.getProducts();
         List<ProductResponseDto> responseDtos = new ArrayList<>();
         for(Product p : product){
             ProductResponseDto productResponseDto = ProductResponseDto.from(p);
@@ -42,7 +47,7 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<ProductResponseDto> createProduct(@RequestBody CreateProductRequestDto requestDto){
-         Product product = fakeStoreProductService.createProduct(
+         Product product = productService.createProduct(
                  requestDto.getName(),
                  requestDto.getDescription(),
                  requestDto.getPrice(),
