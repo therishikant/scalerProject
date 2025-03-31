@@ -13,8 +13,7 @@ import java.util.List;
 @Entity
 public class Category extends BaseModel {
     private String description;
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    
     @OneToMany
-    private List<Product> featuredProducts;
+    private List<Product> products;
 }
