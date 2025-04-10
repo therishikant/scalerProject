@@ -4,6 +4,7 @@ import com.example.ScalerProject.dtos.FakeStoreProductDto;
 import com.example.ScalerProject.dtos.FakeStoreProductRequestDto;
 import com.example.ScalerProject.exceptions.ProductNotFoundException;
 import com.example.ScalerProject.models.Product;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,20 +14,30 @@ import java.util.List;
 @Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService {
     RestTemplate restTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
-    FakeStoreProductService(RestTemplate restTemplate) {
+    FakeStoreProductService(RestTemplate restTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.restTemplate = new RestTemplate();
+        this.redisTemplate = redisTemplate;
     }
     @Override
     public Product getProductById(long id) throws ProductNotFoundException {
+
+        Product productFromCache = (Product) redisTemplate.opsForValue().get(String.valueOf(id));
+        if (productFromCache != null) {
+            return productFromCache;
+        }
+
         FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" +
                 id, FakeStoreProductDto.class);
 
         if (fakeStoreProductDto == null) {
             throw new ProductNotFoundException("No product found with id " + id);
         }
+        Product productFromFakeStore =  fakeStoreProductDto.toProduct();
+        redisTemplate.opsForValue().set(String.valueOf(id), productFromFakeStore);
 
-        return fakeStoreProductDto.toProduct();
+        return productFromFakeStore;
     }
 
     @Override

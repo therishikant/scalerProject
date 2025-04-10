@@ -11,6 +11,7 @@ import com.example.ScalerProject.services.ProductDBService;
 import com.example.ScalerProject.services.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.List;
 @RestController
 public class ProductController {
     ProductService productService;
-    final String serviceName = "productDBService";
+    final String serviceName = "fakeStoreProductService";
 
     ProductController(@Qualifier(serviceName) ProductService productService) {
         this.productService = productService;
